@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Edit food{% endblock %}
+{% block content %}
+  <h1>Edit food</h1>
+  <form method="post">
+    <label>Name</label>
+    <input type="text" name="name" value="{{ food.name }}" required>
+    <label>Unit</label>
+    <select name="unit">
+      {% for u in ["piece", "bowl", "spoon", "cup", "katori", "100g", "100ml"] %}
+        <option value="{{ u }}" {% if u == food.unit %}selected{% endif %}>{{ u }}</option>
+      {% endfor %}
+    </select>
+    <div class="row">
+      <div>
+        <label>Calories</label>
+        <input type="number" step="0.1" name="calories" value="{{ food.calories }}" required>
+      </div>
+      <div>
+        <label>Protein (g)</label>
+        <input type="number" step="0.1" name="protein_g" value="{{ food.protein_g if food.protein_g is not none else '' }}">
+      </div>
+      <div>
+        <label>Carbs (g)</label>
+        <input type="number" step="0.1" name="carbs_g" value="{{ food.carbs_g if food.carbs_g is not none else '' }}">
+      </div>
+    </div>
+    <button type="submit">Save</button>
+  </form>
+  <form method="post" action="{{ url_for('delete_food_item', food_id=food.id) }}"
+        onsubmit="return confirm('Delete this food?')">
+    <button type="submit" class="danger">Delete</button>
+  </form>
+  <form method="get" action="{{ url_for('foods') }}">
+    <button type="submit" class="secondary">Back</button>
+  </form>
+{% endblock %}

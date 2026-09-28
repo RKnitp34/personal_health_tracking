@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}{{ name }}{% endblock %}
+{% block body_class %}wide{% endblock %}
+{% block content %}
+  <h1>{{ name }}</h1>
+
+  {% if chart_svg %}
+    {{ chart_svg | safe }}
+  {% endif %}
+
+  <h2>Best</h2>
+  {% if current_best %}
+    <p class="hint">
+      Current best: <strong>{{ current_best.weight_kg }}kg x {{ current_best.reps }}</strong> ({{ current_best.date }})
+      {% if previous_best %}
+        <br>Previous best: {{ previous_best.weight_kg }}kg x {{ previous_best.reps }} ({{ previous_best.date }})
+      {% else %}
+        <br>No earlier best on record.
+      {% endif %}
+    </p>
+  {% endif %}
+  {% if best_1rm %}
+    <p class="hint">
+      Estimated 1RM (best): <strong>{{ best_1rm[0] }}kg</strong>
+      (from {{ best_1rm[1].weight_kg }}kg x {{ best_1rm[1].reps }} on {{ best_1rm[1].date }})
+    </p>
+  {% endif %}
+  <p class="hint">Total sets logged: {{ total_sets }} &middot; Total volume: {{ total_volume | round(1) }}kg</p>
+
+  <h2>Best reps at each weight</h2>
+  {% if best_reps_by_weight %}
+    <ul class="entries">
+      {% for weight, reps in best_reps_by_weight %}
+        <li><div class="entry-main">{{ weight }}kg</div><div>{{ reps }} reps ({{ estimated_1rm(weight, reps) }}kg est. 1RM)</div></li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  <h2>Weekly volume</h2>
+  {% if weekly_volume %}
+    <ul class="entries">
+      {% for week, volume in weekly_volume %}
+        <li><div class="entry-main">{{ week }}</div><div>{{ volume | round(1) }}kg</div></li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  <h2>Recent sessions</h2>
+  {% for s in recent_sessions %}
+    <p class="hint"><strong>{{ s.date }}</strong></p>
+    <ul class="entries">
+      {% for set in s.exercise_sets %}
+        <li>
+          <div class="entry-main">Set {{ set.set_number }}</div>
+          <div>{{ set.weight_kg if set.weight_kg is not none else '-' }}kg x {{ set.reps }}</div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% endfor %}
+
+  <form method="get" action="{{ url_for('exercises') }}">
+    <button type="submit" class="secondary">Back to exercises</button>
+  </form>
+{% endblock %}

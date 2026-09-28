@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Quick Add{% endblock %}
+{% block content %}
+  <h1>Log something</h1>
+  <p class="hint">
+    e.g. <code>weight 72.4</code> &middot; <code>bench 60x10 60x8 55x10</code> &middot;
+    <code>breakfast 2 eggs 1 banana</code> &middot; <code>food chicken salad cal 450</code>
+    &middot; <a href="{{ url_for('foods') }}">manage foods</a>
+    &middot; <a href="{{ url_for('exercises') }}">workout history</a>
+    &middot; <a href="{{ url_for('dashboard') }}">dashboard</a>
+    &middot; <a href="{{ url_for('calendar_view') }}">calendar</a>
+  </p>
+  <form method="post" action="{{ url_for('add_entry') }}">
+    <input type="text" name="text" id="quick-entry" placeholder="Type an entry..." value="{{ prefill or '' }}" autofocus required>
+    <button type="submit">Add</button>
+  </form>
+  <div class="chip-row">
+    <button type="button" class="chip" onclick="quickFill('weight ')">Weight</button>
+    <button type="button" class="chip" onclick="quickFill('breakfast ')">Breakfast</button>
+    <button type="button" class="chip" onclick="quickFill('lunch ')">Lunch</button>
+    <button type="button" class="chip" onclick="quickFill('dinner ')">Dinner</button>
+    <button type="button" class="chip" onclick="quickFill('snack ')">Snack</button>
+  </div>
+  <script>
+    function quickFill(prefix) {
+      var input = document.getElementById('quick-entry');
+      input.value = prefix;
+      input.focus();
+    }
+  </script>
+
+  <h2>Recent</h2>
+  {% if entries %}
+    <ul class="entries">
+      {% for e in entries %}
+        <li>
+          <div class="entry-main">
+            <div class="entry-type">{{ e.type }} &middot; <span class="entry-date">{{ e.date }}</span></div>
+            <div>{{ e.summary }}</div>
+          </div>
+          <a class="edit-link" href="{{ url_for('edit_entry', entry_type=e.type, entry_id=e.id) }}">Edit</a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="hint">Nothing logged yet.</p>
+  {% endif %}
+{% endblock %}

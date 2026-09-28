@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Possible duplicate{% endblock %}
+{% block content %}
+  <h1>Possible duplicate</h1>
+  <p class="hint">
+    This looks like an entry you just added ({{ existing_summary }}, logged {{ seconds_ago }}s ago).
+    Add it anyway?
+  </p>
+  <form method="post" action="{{ url_for('add_entry') }}">
+    <input type="hidden" name="text" value="{{ text }}">
+    <input type="hidden" name="force" value="1">
+    <button type="submit">Add anyway</button>
+  </form>
+  <form method="get" action="{{ url_for('index') }}">
+    <button type="submit" class="secondary">Cancel</button>
+  </form>
+{% endblock %}

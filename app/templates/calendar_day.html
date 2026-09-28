@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}{{ day }}{% endblock %}
+{% block body_class %}wide{% endblock %}
+{% block content %}
+  <h1>{{ day }}</h1>
+  <p class="nav-links">
+    <a href="{{ url_for('calendar_day', date_str=prev_day.isoformat()) }}">&larr; {{ prev_day }}</a>
+    <a href="{{ url_for('calendar_view', year=day.year, month=day.month) }}">Calendar</a>
+    <a href="{{ url_for('calendar_day', date_str=next_day.isoformat()) }}">{{ next_day }} &rarr;</a>
+  </p>
+
+  <div class="card">
+    <h2>Weight</h2>
+    {% if weights %}
+      <ul class="entries">
+        {% for w in weights %}
+          <li>
+            <div class="entry-main">{{ w.weight_kg }}kg{% if w.body_fat_pct is not none %} &middot; {{ w.body_fat_pct }}% fat{% endif %}</div>
+            <a class="edit-link" href="{{ url_for('edit_entry', entry_type='body', entry_id=w.id) }}">Edit</a>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="hint">No weight logged this day.</p>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <h2>Meals</h2>
+    {% if foods %}
+      <ul class="entries">
+        {% for f in foods %}
+          <li>
+            <div class="entry-main">
+              <div class="entry-type">{{ f.meal_type or 'food' }}</div>
+              <div>{{ f.description }}
+                {% if f.calories is not none %}&middot; {{ f.calories | round(0) | int }} cal{% endif %}
+                {% if f.protein_g is not none %}&middot; {{ f.protein_g | round(0) | int }}g protein{% endif %}
+              </div>
+            </div>
+            <a class="edit-link" href="{{ url_for('edit_entry', entry_type='food', entry_id=f.id) }}">Edit</a>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="hint">No meals logged this day.</p>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <h2>Workouts</h2>
+    {% if workouts %}
+      {% for w in workouts %}
+        <p class="hint" style="margin-bottom:2px;"><strong>{{ w.name }}</strong></p>
+        <ul class="entries">
+          {% for s in w.exercise_sets %}
+            <li>
+              <div class="entry-main">Set {{ s.set_number }}</div>
+              <div>{{ s.weight_kg if s.weight_kg is not none else '-' }}kg x {{ s.reps }}</div>
+            </li>
+          {% endfor %}
+        </ul>
+        <a class="edit-link" href="{{ url_for('edit_entry', entry_type='workout', entry_id=w.id) }}">Edit workout</a>
+      {% endfor %}
+    {% else %}
+      <p class="hint">No workout logged this day.</p>
+    {% endif %}
+  </div>
+
+  <form method="get" action="{{ url_for('calendar_view', year=day.year, month=day.month) }}">
+    <button type="submit" class="secondary">Back to calendar</button>
+  </form>
+{% endblock %}

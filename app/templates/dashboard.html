@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block body_class %}wide{% endblock %}
+{% block content %}
+  <h1>Dashboard</h1>
+  <p class="nav-links">
+    <a href="{{ url_for('index') }}">+ Quick add</a>
+    <a href="{{ url_for('calendar_view') }}">Calendar</a>
+    <a href="{{ url_for('body') }}">Weight history</a>
+    <a href="{{ url_for('nutrition') }}">Meal history</a>
+    <a href="{{ url_for('exercises') }}">Exercises</a>
+    <a href="{{ url_for('profile') }}">Profile</a>
+  </p>
+
+  <div class="grid">
+
+    <div class="card span-2">
+      <h2>Today</h2>
+      <div class="stat-row">
+        <div class="stat">
+          <span class="value">{{ latest_weight.weight_kg if latest_weight else '-' }}</span>
+          <span class="label">Weight (kg)</span>
+        </div>
+        <div class="stat">
+          <span class="value">{{ today_totals.calories | round(0) | int }}</span>
+          <span class="label">Calories</span>
+        </div>
+        <div class="stat">
+          <span class="value">{{ today_totals.protein_g | round(0) | int }}g</span>
+          <span class="label">Protein</span>
+        </div>
+        <div class="stat">
+          <span class="value">{{ todays_workouts | length }}</span>
+          <span class="label">{{ 'Workout' if todays_workouts | length == 1 else 'Workouts' }}</span>
+        </div>
+      </div>
+      {% if todays_workouts %}
+        <p class="hint">Today: {{ todays_workouts | map(attribute='name') | join(', ') }}</p>
+      {% else %}
+        <p class="hint">No workout logged today.</p>
+      {% endif %}
+    </div>
+
+    <div class="card">
+      <h2>Body progress</h2>
+      {% if weight_trend_svg %}
+        {{ weight_trend_svg | safe }}
+      {% else %}
+        <p class="hint">Log a couple more weigh-ins to see a trend.</p>
+      {% endif %}
+      <div class="stat-row">
+        <div class="stat">
+          <span class="value">{{ current_bmi if current_bmi else '-' }}</span>
+          <span class="label">{{ bmi_category if bmi_category else 'BMI' }}</span>
+        </div>
+        <div class="stat">
+          <span class="value">{{ target_weight_kg if target_weight_kg is not none else '-' }}</span>
+          <span class="label">Target (kg)</span>
+        </div>
+      </div>
+      {% if not target_weight_kg or not current_bmi %}
+        <p class="hint">Set height/target on your <a href="{{ url_for('profile') }}">profile</a>.</p>
+      {% endif %}
+    </div>
+
+    <div class="card">
+      <h2>Workout progress</h2>
+      <div class="stat-row">
+        <div class="stat">
+          <span class="value">{{ weekly_volume | round(0) | int }}</span>
+          <span class="label">7-day volume (kg)</span>
+        </div>
+      </div>
+      {% if recent_prs %}
+        <p class="hint" style="margin-bottom:2px;">Current bests</p>
+        <ul class="entries">
+          {% for exercise, pr in recent_prs %}
+            <li>
+              <div class="entry-main">{{ exercise }}</div>
+              <div>{{ pr.weight_kg }}kg x {{ pr.reps }} ({{ estimated_1rm(pr.weight_kg, pr.reps) }}kg 1RM)</div>
+            </li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+      {% if session_summaries %}
+        <p class="hint" style="margin-bottom:2px;">Recent sessions</p>
+        <ul class="entries">
+          {% for s, volume in session_summaries %}
+            <li>
+              <div class="entry-main">{{ s.name }} <span class="entry-date">({{ s.date }})</span></div>
+              <div>{{ volume | round(0) | int }}kg vol</div>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="hint">No workouts logged yet.</p>
+      {% endif %}
+      <p class="hint"><a href="{{ url_for('exercises') }}">See exercise progression &rarr;</a></p>
+    </div>
+
+    <div class="card">
+      <h2>Nutrition</h2>
+      <div class="stat-row">
+        <div class="stat">
+          <span class="value">{{ today_totals.calories | round(0) | int }}</span>
+          <span class="label">Calories today</span>
+        </div>
+        <div class="stat">
+          <span class="value">{{ today_totals.protein_g | round(0) | int }}g</span>
+          <span class="label">Protein today</span>
+        </div>
+      </div>
+      <div class="stat-row">
+        <div class="stat">
+          <span class="value">{{ weekly_avg.calories | round(0) | int }}</span>
+          <span class="label">Avg cal/day (7d)</span>
+        </div>
+        <div class="stat">
+          <span class="value">{{ weekly_avg.protein_g | round(0) | int }}g</span>
+          <span class="label">Avg protein/day</span>
+        </div>
+      </div>
+      <p class="hint"><a href="{{ url_for('nutrition') }}">Full meal history &rarr;</a></p>
+    </div>
+
+    <div class="card span-2">
+      <h2>Recent activity</h2>
+      {% if recent_activity %}
+        <ul class="entries">
+          {% for e in recent_activity %}
+            <li>
+              <div class="entry-main">
+                <div class="entry-type">{{ e.type }} &middot; <span class="entry-date">{{ e.date }}</span></div>
+                <div>{{ e.summary }}</div>
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="hint">Nothing logged yet.</p>
+      {% endif %}
+    </div>
+
+  </div>
+{% endblock %}

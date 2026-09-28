@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Nutrition{% endblock %}
+{% block body_class %}wide{% endblock %}
+{% block content %}
+  <h1>Nutrition</h1>
+
+  <h2>Today</h2>
+  <ul class="entries">
+    <li><div class="entry-main">Calories</div><div>{{ today_totals.calories | round(0) }}</div></li>
+    <li><div class="entry-main">Protein</div><div>{{ today_totals.protein_g | round(1) }}g</div></li>
+    <li><div class="entry-main">Carbs</div><div>{{ today_totals.carbs_g | round(1) }}g</div></li>
+  </ul>
+
+  <h2>Weekly average (per day)</h2>
+  <ul class="entries">
+    <li><div class="entry-main">Calories</div><div>{{ weekly_avg.calories }}</div></li>
+    <li><div class="entry-main">Protein</div><div>{{ weekly_avg.protein_g }}g</div></li>
+    <li><div class="entry-main">Carbs</div><div>{{ weekly_avg.carbs_g }}g</div></li>
+  </ul>
+
+  <h2>Meal history</h2>
+  {% if meals %}
+    <ul class="entries">
+      {% for m in meals %}
+        <li>
+          <div class="entry-main">
+            <div class="entry-type">{{ m.meal_type or 'food' }} &middot; <span class="entry-date">{{ m.date }}</span></div>
+            <div>{{ m.description }}
+              {% if m.calories is not none %}&middot; {{ m.calories | round(0) }} cal{% endif %}
+              {% if m.protein_g is not none %}&middot; {{ m.protein_g | round(1) }}g protein{% endif %}
+            </div>
+          </div>
+          <a class="edit-link" href="{{ url_for('edit_entry', entry_type='food', entry_id=m.id) }}">Edit</a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="hint">No meals logged yet.</p>
+  {% endif %}
+
+  <form method="get" action="{{ url_for('dashboard') }}">
+    <button type="submit" class="secondary">Back to dashboard</button>
+  </form>
+{% endblock %}

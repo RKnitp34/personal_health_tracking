@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Calendar{% endblock %}
+{% block body_class %}wide{% endblock %}
+{% block content %}
+  <h1>Calendar</h1>
+  <div class="card">
+    <div class="cal-header">
+      <a href="{{ url_for('calendar_view', year=prev_year, month=prev_month) }}">&larr; Prev</a>
+      <strong>{{ month_label }}</strong>
+      <a href="{{ url_for('calendar_view', year=next_year, month=next_month) }}">Next &rarr;</a>
+    </div>
+    <div class="cal-grid">
+      {% for dow in ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'] %}
+        <div class="cal-dow">{{ dow }}</div>
+      {% endfor %}
+      {% for week in grid %}
+        {% for cell in week %}
+          {% if cell is none %}
+            <div class="cal-cell empty"></div>
+          {% else %}
+            <a class="cal-cell {{ 'cal-today' if cell.is_today else '' }}" style="background: {{ cell.color }};"
+               href="{{ url_for('calendar_day', date_str=cell.date.isoformat()) }}">
+              <div class="cal-day-num">{{ cell.day }}</div>
+              {% if cell.summary %}
+                {% if cell.summary.weight_kg is not none %}<div>{{ cell.summary.weight_kg }}kg</div>{% endif %}
+                {% if cell.summary.calories %}<div>{{ cell.summary.calories | round(0) | int }} cal</div>{% endif %}
+                <div class="cal-extra">
+                  {% if cell.summary.protein_g %}<div>P {{ cell.summary.protein_g | round(0) | int }}g</div>{% endif %}
+                  {% if cell.summary.carbs_g %}<div>C {{ cell.summary.carbs_g | round(0) | int }}g</div>{% endif %}
+                </div>
+              {% endif %}
+            </a>
+          {% endif %}
+        {% endfor %}
+      {% endfor %}
+    </div>
+  </div>
+  <p class="hint">Darker cells = higher calorie days that month. Tap a day for full details.</p>
+  <p class="nav-links"><a href="{{ url_for('dashboard') }}">&larr; Back to dashboard</a></p>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Profile{% endblock %}
+{% block content %}
+  <h1>Profile</h1>
+  <p class="hint">Used to calculate BMI and to show your weight target on the dashboard.</p>
+  <form method="post">
+    <label>Height (cm)</label>
+    <input type="number" step="0.1" name="height_cm" value="{{ profile.height_cm if profile and profile.height_cm is not none else '' }}">
+    <label>Target weight (kg)</label>
+    <input type="number" step="0.1" name="target_weight_kg" value="{{ profile.target_weight_kg if profile and profile.target_weight_kg is not none else '' }}">
+    <button type="submit">Save</button>
+  </form>
+  <form method="get" action="{{ url_for('dashboard') }}">
+    <button type="submit" class="secondary">Back to dashboard</button>
+  </form>
+{% endblock %}
